@@ -57,26 +57,16 @@ describe("Vault", function () {
       const { vault, otherAccount } = await loadFixture(
         deployVaultContractFixture
       );
-
-      const donor = otherAccount;
       const beneficiary = "0x3618D1cB763509603FdDf3451acb6c9dc2368ECD";
-      const amount = ethers.parseUnits("10000000", 18);
-      const unlockTime = Math.floor(Date.now() / 1000) + 1000;
-      const withdrawn = false;
 
+      const unlockTime = Math.floor(Date.now() / 1000) + 1000;
       const Grant = {
-        donor: donor,
         beneficiary: beneficiary,
-        amount: amount,
         unlockTime: unlockTime,
-        withdrawn: withdrawn,
       };
 
-      expect(await Grant.donor).to.equal(donor);
       expect(await Grant.beneficiary).to.equal(beneficiary);
-      expect(await Grant.amount).to.equal(amount);
       expect(await Grant.unlockTime).to.equal(unlockTime);
-      expect(await Grant.withdrawn).to.equal(withdrawn);
 
       await expect(
         vault.offerGrant(beneficiary, unlockTime, { value: 0 })
@@ -88,22 +78,19 @@ describe("Vault", function () {
         deployVaultContractFixture
       );
 
-      const donor = otherAccount;
       const amount = ethers.parseUnits("0", 18);
       const unlockTime = Math.floor(Date.now() / 1000) + 1000;
 
       await expect(
-        vault.offerGrant(donor, unlockTime, { value: amount })
-      ).to.be.revertedWith("Invalid beneficiary address");
+        vault.offerGrant(otherAccount, unlockTime, { value: amount })
+      ).to.be.revertedWith("Invalid amount");
     });
 
     it("should revert if the unlock time is in the past", async function () {
-      const { vault, otherAccount } = await loadFixture(
-        deployVaultContractFixture
-      );
+      const { vault } = await loadFixture(deployVaultContractFixture);
 
       const beneficiary = "0x3618D1cB763509603FdDf3451acb6c9dc2368ECD";
-      const txAmount = ethers.parseUnits("10000", 18);
+      const txAmount = ethers.parseUnits("0.001", 18);
 
       const Grant = {
         beneficiary: beneficiary,
